@@ -4,8 +4,7 @@ class KarateBasicTest {
     static {
         System.setProperty("karate.ssl", "true");
     }
-
-    //test
+    
     @Karate.Test
     Karate testBasic() {
         return Karate.run("classpath:karate-test.feature");
