@@ -1,9 +1,11 @@
-Feature: Test de API súper simple
+Feature: Test API Marvel - Chapter
 
   Background:
     * configure ssl = true
     * def baseUrl = 'http://bp-se-test-cabcd9b246a5.herokuapp.com/testuser/api/characters'
+    * def nonExistentId = '999'
 
+  @CRUD
   Scenario: Flujo exitoso: GET → POST → PUT → DELETE
     # GET
     Given url baseUrl
@@ -47,15 +49,15 @@ Feature: Test de API súper simple
     When method delete
     Then status 204
 
+  @ErrorHandling
   Scenario: Verificar que el endpoint responde correctamente cuando el recurso NO EXISTE
-
-  # GET
-    Given url baseUrl + '/999'
+    # GET non-existent
+    Given url baseUrl + '/' + nonExistentId
     When method get
     Then status 404
     And match response.error == "Character not found"
 
-    # POST (datos duplicados)
+    # POST duplicate
     Given url baseUrl
     And request
     """
@@ -70,8 +72,8 @@ Feature: Test de API súper simple
     Then status 400
     And match response.error == "Character name already exists"
 
-    # PUT
-    Given url baseUrl + '/999'
+    # PUT non-existent
+    Given url baseUrl + '/' + nonExistentId
     And request
     """
     {
@@ -85,12 +87,13 @@ Feature: Test de API súper simple
     Then status 404
     And match response.error == "Character not found"
 
-  # DELETE
-    Given url baseUrl + '/999'
+    # DELETE non-existent
+    Given url baseUrl + '/' + nonExistentId
     When method delete
     Then status 404
     And match response.error == "Character not found"
 
+  @Validation
   Scenario: Verificar que el endpoint responde correctamente cuando faltan campos en la creación de un personaje
     Given url baseUrl
     And request
@@ -109,6 +112,7 @@ Feature: Test de API súper simple
     And match response.powers == "Powers are required"
     And match response.alterego == "Alterego is required"
 
+  @List
   Scenario: Verificar que el endpoint lista todos los elementos
     Given url baseUrl
     When method get
